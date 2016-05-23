@@ -40,9 +40,7 @@ class App {
 		foreach($val1 as $i => $key) {
 			if(strpos($key, '{') === 0 && strpos($key, '}')=== (strlen($key) - 1) &&
 				isset($val2[$i])) {
-				$var = explode('{', $key);
-				$var = explode('}', $var[1]);
-				$param[$var[0]] = $val2[$i];
+				$param[trim($key, '{}')] = $val2[$i];
 			}
 		}
 		
@@ -58,12 +56,12 @@ class App {
 			
 			foreach($routeItem as $route => $closure) {				
 				if ($parsedUrl['path'] === $route) {				
-					return $closure($this);
+					return $closure();
 				} else {
 					$ex = explode('/', $route);
 					$ex2 = explode('/', $parsedUrl['path']);
 					
-					if (sizeof($ex) !== sizeof($ex2))
+					if (count($ex) !== count($ex2))
 						continue;
 					
 					$params = [];
@@ -78,7 +76,7 @@ class App {
 						$params = array_merge($this->associateKeyValuePair($ex, $ex2), $params);
 					}					
 					
-					return $closure($this, $params);
+					return $closure($params);
 				}
 			}
 		}
@@ -113,35 +111,47 @@ class App {
 	}
 	
 	public function get(string $route, $callback, $isJSON = true) 
-	{		
-		return $this->addRoute('GET', $route, $callback);
+	{
+		header('Content-Type: application/json;charset=utf-8');
+		$this->addRoute('GET', $route, $callback);
+		return $this;
 	}
 	
 	public function post(string $route, $callback, $isJSON = true) 
 	{
-		return $this->addRoute('POST', $route, $callback);
+		header('Content-Type: application/json;charset=utf-8');
+		$this->addRoute('POST', $route, $callback);
+		return $this;
 	}
 	
 	public function put(string $route, $callback, $isJSON = true) 
 	{
-		return $this->addRoute('PUT', $route, $callback);
+		header('Content-Type: application/json;charset=utf-8');
+		$this->addRoute('PUT', $route, $callback);
+		return $this;
 	}
 	
 	public function delete(string $route, $callback, $isJSON = true) 
 	{
-		return $this->addRoute('DELETE', $route, $callback);
+		header('Content-Type: application/json;charset=utf-8');
+		$this->addRoute('DELETE', $route, $callback);
+		return $this;
 	}
 	
 	public function all(string $route, $callback) 
 	{
+		header('Content-Type: application/json;charset=utf-8');
 		$this->addRoute('GET', $route, $callback);
 		$this->addRoute('POST', $route, $callback);
 		$this->addRoute('PUT', $route, $callback);
-		return $this->addRoute('DELETE', $route, $callback);		
+		$this->addRoute('DELETE', $route, $callback);
+		return $this;
 	}
 	
 	private function route_clean($route) {
-		return xss_clean(trim($route, '/'));
+		$route = xss_clean(trim(str_replace('//', '/', $route), '/'));
+		//var_dump($route);
+		return $route;
 	}
 	
 	
