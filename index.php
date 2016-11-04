@@ -3,7 +3,7 @@ namespace bonbon;
 error_reporting(E_ALL);
 include("bonbon.php");
 
-App::getInstance()
+App::getInstance('mySecretKey')
 	->all("/user/{id}", 
 		function($params)
 		{		
