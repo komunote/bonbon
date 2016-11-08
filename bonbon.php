@@ -57,10 +57,12 @@ function xss_clean($data)
 class App
 {
     private static $instance;
+	private $config;
     private $secret_key;
     private $init = false;
     private $vars;
     private $routes;
+	
 
     /**
      * App constructor.
@@ -74,11 +76,11 @@ class App
      * @param string $secret_key
      * @return App
      */
-    public static function getInstance(string $secret_key)
+    public static function getInstance(string $secret_key='BoNBoN')
     {
         if (null === static::$instance) {
             static::$instance = new static();
-            static::$instance->init();
+            static::$instance->init($secret_key);
         }
 
         return static::$instance;
@@ -88,13 +90,13 @@ class App
      * @param string $secret_key
      * @return bool
      */
-    private function init(string $secret_key = 'BoNBoN')
+    private function init(string $secret_key)
     {
         if (!$this->init) {
-            $this->vars = [];
-            $this->routes = [];
-            $this->secret_key = $secret_key;
-            $this->init = true;
+            $this->vars 		= [];
+            $this->routes 		= [];
+            $this->secret_key 	= $secret_key;
+            $this->init 		= true;
         }
         return true;
     }
@@ -105,9 +107,8 @@ class App
      * @param type $string
      * @return string 64 caracteres
      */
-    public static function sha256_crypt($string)
+    public static function sha256_crypt(string $string) : string
     {
-
         return hash_hmac('sha256', $string, self::$secret_key);
     }
 
@@ -125,7 +126,7 @@ class App
      * @param $val2
      * @return array
      */
-    private function associateKeyValuePair($val1, $val2)
+    private function associateKeyValuePair(array $val1, array $val2) : array
     {
         $param = [];
 
@@ -181,13 +182,41 @@ class App
         return false;
     }
 
+	/**
+     * @param array $data
+     */
+    public function setConfig(array $data)
+    {
+		$this->config = $data;
+		return $this;
+    }
+	
     /**
      * @param array $data
      */
-    public static function config(array $data)
+    public function getConfig() : array
     {
-
+		return $this->config;
     }
+	
+	/**
+	 * @param 
+	 */
+	public function executeQuery(string $query)
+	{
+		$config = $this->getConfig();
+		$cfgDB = $config['database'];
+
+		$mysqli = new \mysqli($cfgDB['host'], $cfgDB['user'], $cfgDB['password'], $cfgDB['database_name']) or die('Could not select database.');
+
+		$results = $mysqli->query($query);
+
+		if ($mysqli->connect_errno) {
+			die('Could not connect: ' . $mysqli->connect_error);
+		}
+
+		return $results;
+	}
 
     /**
      * @param bool $url
