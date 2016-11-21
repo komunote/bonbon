@@ -57,3 +57,8 @@ App::getInstance()
        }
    );
    ```
+
+###- views/home.php
+```html
+<p>Home page with REST API : <?php echo $test, $var_test?></p>
+```
