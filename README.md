@@ -45,7 +45,7 @@ App::getInstance('bonbon')
    
 ###- routes/main.php (example)
    ```php
-   <?php
+<?php
 namespace bonbon;
 
 use bonbon\Bonbon as App;
